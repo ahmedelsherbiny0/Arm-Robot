@@ -47,11 +47,13 @@ void loop() {
   CheckMode();
 }
 
+// Function to check recieved Mode to change between them
 void CheckMode() {
+    // Check if there is Recieved Bytes by Hc-05
   if (BTSerial.available()) {
     CurrentMode = BTSerial.read();
   }
-  
+  //Check if Mode has Changed
   if (CurrentMode != PreviousMode) {
     On = false;  // Stop the current mode
     delay(100);  // Short delay to ensure the current mode stops
@@ -78,10 +80,14 @@ void CheckMode() {
   delay(50);
 }
 
+//Function to check if there is a flame, turn on Alarm System if there is fire and stop movement
 void CheckFlame() {
   // Serial.println(map(analogRead(Flame), 0, 1023, 255, 0));
+
+  // Check if Flame under threshold to start Alarm System
   if (analogRead(Flame) < 450) {
     digitalWrite(Led, HIGH);
+    // Stop motion until action to stop alarm and continue motion
     while (true) {
       FireRate = map(analogRead(Flame), 0, 1023, 255, 0);
       analogWrite(Buz, FireRate);
@@ -101,6 +107,7 @@ void CheckFlame() {
   }
 }
 
+// Function to start Automatic Motion which scan the area in horizontal and vertical movements
 void AutomaticMotion() {
   while (On) {
     delay(100);
@@ -149,10 +156,13 @@ void AutomaticMotion() {
   }
 }
 
+// Function to Start Manual Motion by Joystick 
 void JoystickManualMotion() {
   while (On && CurrentMode == 'J') {
+    // Maping recieved analog signal from joystick module to specified range for base servo
     angelX = map(analogRead(JoystickX), 0, 1023, 170, 10);
     delay(25);
+    // Maping recieved analog signal from joystick module to specified range for arm servo
     angelY = map(analogRead(JoystickY), 0, 1023, 60, 10);
     delay(25);
     if (angelX <= 170 && angelX >= 10) H_SERVO.write(angelX);
@@ -166,6 +176,7 @@ void JoystickManualMotion() {
   }
 }
 
+// Function to start Manual Motion by App
 void ManualMotion() {
   while (On && CurrentMode == 'M') {
     if (BTSerial.available()) {
